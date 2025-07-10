@@ -379,6 +379,6 @@ If you have any questions or need help:
 
 ---
 
-Made with ❤️ by [Tanishq](https://github.com/tanishq)
+Made with ❤️‍🔥 by [Tanishq Tiwari](https://github.com/tanishqtiwari7)
 
 **Happy Coding! 🚀**

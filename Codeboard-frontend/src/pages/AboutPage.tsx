@@ -7,7 +7,7 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../theme/ThemeContext";
+import { useTheme } from "@mui/material/styles";
 
 // Material UI Components
 import {
@@ -40,7 +40,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const AboutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

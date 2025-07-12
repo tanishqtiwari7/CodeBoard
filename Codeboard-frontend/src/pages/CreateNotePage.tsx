@@ -9,12 +9,12 @@
  * - Error handling and loading states
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createNote } from "../services/api";
-import { getTags } from "../services/codeboardApi";
+import { createNote } from "../services/codeboardApi";
 import { useToast } from "../components/ToastProvider";
-import { useTheme } from "../theme/ThemeContext";
+import { useTheme } from "@mui/material/styles";
+import HorizontalTagSelector from "../components/HorizontalTagSelector";
 
 // Material UI Components
 import {
@@ -24,7 +24,6 @@ import {
   Button,
   Paper,
   Container,
-  Chip,
   FormHelperText,
   CircularProgress,
   Stack,
@@ -52,13 +51,12 @@ interface FormErrors {
   content?: string;
 }
 
-// Import NoteTag type from our model
-import type { NoteTag } from "../models/NoteTag";
+// Using NoteTag type from the API service
 
 const CreateNotePage: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   // Form state
   const [title, setTitle] = useState<string>("");
@@ -69,30 +67,9 @@ const CreateNotePage: React.FC = () => {
   // UI state
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [availableTags, setAvailableTags] = useState<NoteTag[]>([]);
-  const [isLoadingTags, setIsLoadingTags] = useState<boolean>(false);
 
   // Editor theme
   const editorTheme = theme.palette.mode === "dark" ? "vs-dark" : "vs-light";
-
-  // Fetch available tags
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        setIsLoadingTags(true);
-        const tags = await getTags();
-        // Set the tags received from the backend
-        setAvailableTags(tags);
-      } catch (error) {
-        console.error("Failed to load tags:", error);
-        showToast("error", "Failed to load available tags.", 3000);
-      } finally {
-        setIsLoadingTags(false);
-      }
-    };
-
-    fetchTags();
-  }, [showToast]);
 
   // Form validation
   const validateForm = () => {
@@ -136,17 +113,6 @@ const CreateNotePage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Handle tag toggle
-  const handleTagToggle = (tagName: string) => {
-    setSelectedTags((prev) => {
-      if (prev.includes(tagName)) {
-        return prev.filter((t) => t !== tagName);
-      } else {
-        return [...prev, tagName];
-      }
-    });
   };
 
   return (
@@ -224,56 +190,10 @@ const CreateNotePage: React.FC = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Tags
               </Typography>
-              {isLoadingTags ? (
-                <Box display="flex" justifyContent="center" my={2}>
-                  <CircularProgress size={24} />
-                </Box>
-              ) : (
-                <>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 1,
-                      mb: 2,
-                      maxHeight: "200px",
-                      overflowY: "auto",
-                      p: 1,
-                      border: "1px solid",
-                      borderColor: "divider",
-                      borderRadius: 1,
-                    }}
-                  >
-                    {availableTags.map((tag) => (
-                      <Chip
-                        key={tag.name}
-                        label={
-                          tag.emoji && tag.displayName
-                            ? `${tag.emoji} ${tag.displayName}`
-                            : tag.name
-                        }
-                        color={
-                          selectedTags.includes(tag.name)
-                            ? "primary"
-                            : "default"
-                        }
-                        onClick={() => handleTagToggle(tag.name)}
-                        sx={{
-                          "&:hover": {
-                            bgcolor: selectedTags.includes(tag.name)
-                              ? "primary.main"
-                              : "action.hover",
-                          },
-                          transition: "all 0.2s",
-                        }}
-                      />
-                    ))}
-                  </Box>
-                  <FormHelperText>
-                    Click to select multiple tags for your note
-                  </FormHelperText>
-                </>
-              )}
+              <HorizontalTagSelector
+                selectedTags={selectedTags}
+                onTagChange={setSelectedTags}
+              />
             </Box>
           </Box>
 

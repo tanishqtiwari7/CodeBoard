@@ -15,15 +15,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   getNoteById,
   updateNote,
-  getTags,
   incrementNoteViewCount,
   type CodeNote,
-  type NoteTag,
 } from "../services/codeboardApi";
 import { useToast } from "../components/ToastProvider";
-import { useTheme } from "../theme/ThemeContext";
-import { detectLanguage } from "../utils/languageDetector";
-import { motion } from "framer-motion";
+import { useTheme } from "@mui/material/styles";
+import {
+  getLanguageName,
+  getLanguageDisplayName,
+} from "../utils/highlightLanguageDetector";
+import HorizontalTagSelector from "../components/HorizontalTagSelector";
+import { getTagDisplayName, getTagEmoji } from "../constants/tags";
 
 // Material UI Components
 import {
@@ -34,18 +36,14 @@ import {
   Container,
   Paper,
   TextField,
-  IconButton,
   Skeleton,
   Divider,
   Grid,
   Card,
-  CardContent,
   Alert,
   CircularProgress,
-  Autocomplete,
   Tabs,
   Tab,
-  useMediaQuery,
 } from "@mui/material";
 
 // Material UI Icons
@@ -98,18 +96,13 @@ const NoteDetailPage: React.FC = () => {
     content: "",
     tags: [],
   });
-  const [availableTags, setAvailableTags] = useState<NoteTag[]>([]);
-  const [loadingTags, setLoadingTags] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [activeTab, setActiveTab] = useState<number>(0);
 
   // Hooks
   const { showToast } = useToast();
-  const { theme } = useTheme();
-
-  // Responsive design
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const theme = useTheme();
 
   // Editor theme based on app theme
   const editorTheme = theme.palette.mode === "dark" ? "vs-dark" : "vs-light";
@@ -157,25 +150,10 @@ const NoteDetailPage: React.FC = () => {
     }
   }, [id]);
 
-  // Fetch available tags
-  const fetchAvailableTags = useCallback(async () => {
-    try {
-      setLoadingTags(true);
-      const tags = await getTags();
-      setAvailableTags(tags);
-    } catch (err) {
-      console.error("Failed to load tags:", err);
-      // Non-critical error, don't show to user
-    } finally {
-      setLoadingTags(false);
-    }
-  }, []);
-
   // Initial data fetching
   useEffect(() => {
     fetchNoteData();
-    fetchAvailableTags();
-  }, [fetchNoteData, fetchAvailableTags]);
+  }, [fetchNoteData]);
 
   // Form validation
   const validateForm = () => {
@@ -255,7 +233,7 @@ const NoteDetailPage: React.FC = () => {
   // Detect language from content
   const getLanguage = (content?: string): string => {
     if (!content || content.trim() === "") return "text";
-    return detectLanguage(content).toLowerCase();
+    return getLanguageName(content);
   };
 
   // Format date for display
@@ -363,10 +341,6 @@ const NoteDetailPage: React.FC = () => {
             borderRadius: 3,
             transition: "all 0.3s ease",
           }}
-          component={motion.div}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
         >
           {/* View Mode */}
           {!isEditing ? (
@@ -379,7 +353,7 @@ const NoteDetailPage: React.FC = () => {
                   {/* Language chip */}
                   <Chip
                     icon={<CodeIcon />}
-                    label={detectLanguage(
+                    label={getLanguageDisplayName(
                       note.content || note.description || ""
                     )}
                     color="primary"
@@ -394,8 +368,18 @@ const NoteDetailPage: React.FC = () => {
                     note.tags.map((tag: string, index: number) => (
                       <Chip
                         key={index}
-                        icon={<LocalOfferIcon />}
-                        label={tag}
+                        label={
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                            }}
+                          >
+                            <span>{getTagEmoji(tag)}</span>
+                            <span>{getTagDisplayName(tag)}</span>
+                          </Box>
+                        }
                         color="secondary"
                         variant="filled"
                         size="small"
@@ -627,48 +611,14 @@ const NoteDetailPage: React.FC = () => {
                     <LocalOfferIcon
                       sx={{ mt: 2, mr: 2, color: "primary.main" }}
                     />
-                    <Autocomplete
-                      multiple
-                      fullWidth
-                      id="tags"
-                      options={availableTags.map((tag) => tag.name)}
-                      value={editForm.tags}
-                      onChange={(_event, newValue) =>
-                        setEditForm({ ...editForm, tags: newValue })
-                      }
-                      renderTags={(value, getTagProps) =>
-                        value.map((option, index) => (
-                          <Chip
-                            label={option}
-                            {...getTagProps({ index })}
-                            color="secondary"
-                            size="small"
-                            sx={{ m: 0.5 }}
-                          />
-                        ))
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          variant="outlined"
-                          label="Tags"
-                          placeholder="Select or type to add new tags"
-                          InputProps={{
-                            ...params.InputProps,
-                            endAdornment: (
-                              <>
-                                {loadingTags ? (
-                                  <CircularProgress size={20} />
-                                ) : null}
-                                {params.InputProps.endAdornment}
-                              </>
-                            ),
-                            sx: { borderRadius: 1.5 },
-                          }}
-                        />
-                      )}
-                      freeSolo
-                    />
+                    <Box sx={{ flex: 1 }}>
+                      <HorizontalTagSelector
+                        selectedTags={editForm.tags}
+                        onTagChange={(tags) =>
+                          setEditForm({ ...editForm, tags })
+                        }
+                      />
+                    </Box>
                   </Box>
                 </Grid>
 

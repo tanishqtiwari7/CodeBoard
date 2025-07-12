@@ -1,17 +1,17 @@
 # CodeBoard Frontend
 
-A modern React-based web application for managing and organizing code snippets with a beautiful Material UI interface.
+A clean, simplified React application for managing code snippets with horizontal tag selection and automatic language detection.
 
 ## Features
 
-- 🎨 Modern Material UI design with light/dark theme support
+- 🎨 Clean Material UI design with light/dark theme support
 - 📝 Create and manage code notes with syntax highlighting
-- 🏷️ Tag-based organization
-- 🔍 Advanced search capabilities
-- 🎯 Intuitive code snippet management
+- 🏷️ Horizontal tag selector with 10 predefined tags
+- 🔍 Real-time search across all content
+- � Automatic language detection with highlight.js
 - 📱 Fully responsive design
 - 🔔 Toast notifications system
-- ⚡ Fast and efficient React components
+- 💾 Dual storage modes (localStorage or backend)
 
 ## Tech Stack
 
@@ -20,8 +20,8 @@ A modern React-based web application for managing and organizing code snippets w
 - Material UI (MUI)
 - Vite
 - React Router
-- Code highlighting with Prism.js
-- ESLint + Prettier
+- Highlight.js (for language detection)
+- ESLint
 
 ## Prerequisites
 
@@ -30,32 +30,21 @@ A modern React-based web application for managing and organizing code snippets w
 
 ## Getting Started
 
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/codeboard-frontend.git
-cd codeboard-frontend
-```
-
-2. Install dependencies:
+1. **Install dependencies:**
 
 ```bash
 npm install
 ```
 
-3. Configure the backend API endpoint in `src/services/api/client.ts`:
-
-```typescript
-export const API_BASE_URL = "http://localhost:8080/api";
-```
-
-4. Start the development server:
+2. **Start the development server:**
 
 ```bash
 npm run dev
 ```
 
 The application will be available at `http://localhost:5173`.
+
+**Note:** This runs in localStorage mode by default. To use backend mode, see the main project README.
 
 ## Available Scripts
 
@@ -69,15 +58,23 @@ The application will be available at `http://localhost:5173`.
 
 ```
 src/
-├── assets/          # Static assets
-├── components/      # Reusable React components
-│   └── ui/         # UI components
-├── models/         # TypeScript interfaces and types
-├── pages/          # Page components
-├── services/       # API and other services
-│   └── api/       # API modules
-├── theme/          # Theme configuration
-└── utils/          # Utility functions
+├── components/         # React components
+│   ├── HorizontalTagSelector.tsx    # Tag selection component
+│   ├── Navbar.tsx                   # Navigation bar
+│   ├── ThemeProvider.tsx           # Theme management
+│   └── ToastProvider.tsx           # Toast notifications
+├── constants/          # App constants
+│   └── tags.ts        # 10 predefined tags
+├── pages/             # Page components
+│   ├── HomePage.tsx           # Main dashboard
+│   ├── CreateNotePage.tsx     # Create/edit notes
+│   ├── NoteDetailPage.tsx     # Note details
+│   ├── FeatureDemoPage.tsx    # Feature showcase
+│   └── AboutPage.tsx          # About page
+├── services/          # API and services
+│   └── codeboardApi.ts       # Unified API (localStorage + backend)
+└── utils/             # Utility functions
+    └── highlightLanguageDetector.ts  # Language detection
 ```
 
 ## Features in Detail

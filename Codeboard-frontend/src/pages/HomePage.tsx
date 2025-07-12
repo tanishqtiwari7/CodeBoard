@@ -15,7 +15,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getNotes, deleteNote, type CodeNote } from "../services/codeboardApi";
 import { useTheme } from "@mui/material/styles";
-import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "../components/ToastProvider";
 
 // Material UI Components
@@ -44,13 +43,13 @@ import type { SxProps, Theme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import SearchIcon from "@mui/icons-material/Search";
 import CodeIcon from "@mui/icons-material/Code";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
 // Language detection utility
-import { detectLanguage } from "../utils/languageDetector";
+import { getLanguageDisplayName } from "../utils/highlightLanguageDetector";
+import { getTagDisplayName, getTagEmoji } from "../constants/tags";
 
 // Component interfaces
 interface ConfirmDialogProps {
@@ -127,7 +126,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
 const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onView, sx }) => {
   const { title, description, content, tags = [], id } = note;
-  const language = detectLanguage(content || "");
+  const language = getLanguageDisplayName(content || "");
   const theme = useTheme();
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -141,15 +140,6 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onView, sx }) => {
 
   return (
     <Card
-      component={motion.div}
-      whileHover={{
-        scale: 1.02,
-        boxShadow:
-          theme.palette.mode === "dark"
-            ? "0 10px 30px rgba(0, 0, 0, 0.25)"
-            : "0 10px 30px rgba(165, 138, 117, 0.15)",
-      }}
-      transition={{ type: "spring", stiffness: 300 }}
       sx={{
         height: "100%",
         display: "flex",
@@ -168,6 +158,13 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onView, sx }) => {
             : "rgba(255, 251, 244, 0.7)",
         backdropFilter: "blur(8px)",
         transition: "all 0.3s ease",
+        "&:hover": {
+          transform: "scale(1.02)",
+          boxShadow:
+            theme.palette.mode === "dark"
+              ? "0 10px 30px rgba(0, 0, 0, 0.25)"
+              : "0 10px 30px rgba(165, 138, 117, 0.15)",
+        },
         ...sx,
       }}
       onClick={handleView}
@@ -224,9 +221,13 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete, onView, sx }) => {
             {tags.slice(0, 3).map((tag, index) => (
               <Chip
                 key={index}
-                label={tag}
+                label={
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <span>{getTagEmoji(tag)}</span>
+                    <span>{getTagDisplayName(tag)}</span>
+                  </Box>
+                }
                 size="small"
-                icon={<LocalOfferIcon sx={{ fontSize: "0.9rem" }} />}
                 onClick={(e) => e.stopPropagation()}
                 sx={{
                   borderRadius: "16px",
@@ -561,11 +562,7 @@ const HomePage: React.FC = () => {
         backgroundColor: theme.palette.background.default,
       }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+      <Box>
         <Box
           sx={{
             mb: 5,
@@ -664,42 +661,26 @@ const HomePage: React.FC = () => {
             }}
           />
         </Box>
-      </motion.div>
+      </Box>
 
       {loading ? (
         renderLoading()
       ) : error ? (
         renderError()
       ) : filteredNotes.length > 0 ? (
-        <AnimatePresence>
-          <Grid container spacing={3}>
-            {filteredNotes.map((note) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={note.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: Math.random() * 0.2,
-                  }}
-                >
-                  <NoteCard
-                    note={note}
-                    onDelete={handleDeleteClick}
-                    onView={handleViewNote}
-                  />
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </AnimatePresence>
+        <Grid container spacing={3}>
+          {filteredNotes.map((note) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={note.id}>
+              <NoteCard
+                note={note}
+                onDelete={handleDeleteClick}
+                onView={handleViewNote}
+              />
+            </Grid>
+          ))}
+        </Grid>
       ) : (
         <Box
-          component={motion.div}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
           sx={{
             textAlign: "center",
             py: 8,

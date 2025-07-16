@@ -2,6 +2,14 @@
 
 A clean, simplified code note management system with automatic language detection and smart tagging.
 
+## 🌐 Live Demo
+
+**Try it now:** [https://tanishqtiwari7.github.io/CodeBoard/](https://tanishqtiwari7.github.io/CodeBoard/)
+
+**GitHub Repository:** [https://github.com/tanishqtiwari7/CodeBoard](https://github.com/tanishqtiwari7/CodeBoard)
+
+_Your notes are stored in your browser's localStorage - completely private and secure!_
+
 ## 🚀 Quick Start (Recommended)
 
 **Frontend-Only Mode** - No backend needed:

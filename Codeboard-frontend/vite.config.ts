@@ -4,10 +4,11 @@ import react from "@vitejs/plugin-react-swc";
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  base: mode === "production" ? "/CodeBoard/" : "/",
   resolve: {
     alias: {
-      "@": "/src"
-    }
+      "@": "/src",
+    },
   },
   server: {
     port: 5173,
@@ -24,7 +25,7 @@ export default defineConfig(({ mode }) => ({
   // Define environment variables
   define: {
     "import.meta.env.APP_VERSION": JSON.stringify("2.0.0"),
-    "import.meta.env.APP_MODE": JSON.stringify(mode)
+    "import.meta.env.APP_MODE": JSON.stringify(mode),
   },
   // Enable source maps in production
   build: {
@@ -34,31 +35,28 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           // Split vendor code into separate chunks for better caching
           vendor: [
-            'react', 
-            'react-dom', 
-            'react-router-dom',
-            '@mui/material',
-            '@mui/icons-material',
-            '@emotion/react',
-            '@emotion/styled'
+            "react",
+            "react-dom",
+            "react-router-dom",
+            "@mui/material",
+            "@mui/icons-material",
+            "@emotion/react",
+            "@emotion/styled",
           ],
-          highlight: ['highlight.js', 'react-syntax-highlighter'],
-          utils: ['date-fns', 'lodash', 'zod']
-        }
-      }
-    }
+          highlight: ["highlight.js", "react-syntax-highlighter"],
+          utils: ["date-fns", "lodash", "zod"],
+        },
+      },
+    },
   },
   // Testing configuration
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
     coverage: {
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/'
-      ]
-    }
-  }
+      reporter: ["text", "json", "html"],
+      exclude: ["node_modules/", "src/test/"],
+    },
+  },
 }));

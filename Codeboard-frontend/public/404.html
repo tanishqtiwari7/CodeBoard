@@ -4,40 +4,29 @@
     <meta charset="utf-8" />
     <title>CodeBoard</title>
     <script type="text/javascript">
-      // GitHub Pages SPA redirect for CodeBoard
+      // Simple redirect for GitHub Pages SPA
+      var pathSegmentsToKeep = 1;
       var l = window.location;
 
-      // For https://username.github.io/CodeBoard/some/path
-      // We want to redirect to https://username.github.io/CodeBoard/?/some/path
-
-      var segments = l.pathname.split("/").filter(Boolean);
-
-      if (segments.length > 1) {
-        // Remove 'CodeBoard' from segments to get the route
-        var route = segments.slice(1).join("/");
-
-        // Redirect to CodeBoard base with the route as query parameter
-        var redirect =
-          l.protocol +
+      l.replace(
+        l.protocol +
           "//" +
           l.hostname +
           (l.port ? ":" + l.port : "") +
-          "/CodeBoard/?/" +
-          route +
+          l.pathname
+            .split("/")
+            .slice(0, 1 + pathSegmentsToKeep)
+            .join("/") +
+          "/?/" +
+          l.pathname
+            .slice(1)
+            .split("/")
+            .slice(pathSegmentsToKeep)
+            .join("/")
+            .replace(/&/g, "~and~") +
           (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
-          l.hash;
-
-        l.replace(redirect);
-      } else {
-        // If no additional path, just go to CodeBoard home
-        l.replace(
-          l.protocol +
-            "//" +
-            l.hostname +
-            (l.port ? ":" + l.port : "") +
-            "/CodeBoard/"
-        );
-      }
+          l.hash
+      );
     </script>
   </head>
   <body>

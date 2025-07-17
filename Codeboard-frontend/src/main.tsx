@@ -17,10 +17,13 @@ const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Failed to find the root element");
 const root = createRoot(rootElement);
 
+// Configure basename for GitHub Pages deployment
+const basename = import.meta.env.PROD ? "/CodeBoard" : "";
+
 // Render the app wrapped in required providers
 root.render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <App />
     </BrowserRouter>
   </StrictMode>

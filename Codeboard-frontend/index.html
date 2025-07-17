@@ -8,7 +8,7 @@
 
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
-      // GitHub Pages SPA redirect handler for CodeBoard
+      // GitHub Pages SPA redirect handler
       (function (l) {
         if (l.search[1] === "/") {
           var decoded = l.search
@@ -18,11 +18,11 @@
               return s.replace(/~and~/g, "&");
             })
             .join("?");
-
-          // For CodeBoard, ensure we maintain the /CodeBoard/ base path
-          var newPath = "/CodeBoard/" + decoded;
-
-          window.history.replaceState(null, null, newPath + l.hash);
+          window.history.replaceState(
+            null,
+            null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
         }
       })(window.location);
     </script>

@@ -1,5 +1,5 @@
 /**
- * Elegant Professional Navigation Bar
+ * Responsive Navigation Bar with Hamburger Menu
  */
 
 import {
@@ -9,15 +9,24 @@ import {
   Box,
   Button,
   IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useMediaQuery,
+  useTheme as useMuiTheme,
 } from "@mui/material";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "./ThemeProvider";
-import { motion } from "framer-motion";
 import { styled } from "@mui/material/styles";
 
 // Icons
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import CodeIcon from "@mui/icons-material/Code";
 import HomeIcon from "@mui/icons-material/Home";
 import CreateIcon from "@mui/icons-material/Create";
@@ -39,82 +48,47 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
     theme.palette.mode === "dark"
       ? "0 8px 32px rgba(0, 0, 0, 0.3)"
       : "0 8px 32px rgba(0, 0, 0, 0.1)",
-  transition: "all 0.3s ease",
 }));
 
 const NavButton = styled(Button)(({ theme }) => ({
-  position: "relative",
   color: theme.palette.mode === "dark" ? "#e0e0e0" : "#2d3748",
   fontWeight: 500,
   fontSize: "0.95rem",
   padding: "8px 16px",
-  borderRadius: "12px",
-  textTransform: "none",
-  transition: "all 0.3s ease",
+  borderRadius: "8px",
+  margin: "0 4px",
   "&:hover": {
     backgroundColor:
       theme.palette.mode === "dark"
         ? "rgba(255, 255, 255, 0.1)"
         : "rgba(0, 0, 0, 0.04)",
-    transform: "translateY(-1px)",
-  },
-  "&::after": {
-    content: '""',
-    position: "absolute",
-    bottom: "-8px",
-    left: "50%",
-    transform: "translateX(-50%) scaleX(0)",
-    width: "60%",
-    height: "2px",
-    background:
-      theme.palette.mode === "dark"
-        ? "linear-gradient(90deg, #ff6b6b, #4ecdc4)"
-        : "linear-gradient(90deg, #667eea, #764ba2)",
-    borderRadius: "2px",
-    transition: "transform 0.3s ease",
-  },
-  "&:hover::after": {
-    transform: "translateX(-50%) scaleX(1)",
   },
 }));
 
-const LogoContainer = styled(motion.div)(({ theme }) => ({
+const LogoContainer = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
-  gap: "12px",
   cursor: "pointer",
-  padding: "4px 8px",
-  borderRadius: "12px",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    backgroundColor:
-      theme.palette.mode === "dark"
-        ? "rgba(255, 255, 255, 0.05)"
-        : "rgba(0, 0, 0, 0.02)",
-  },
+  gap: "12px",
 }));
 
-const ThemeToggle = styled(IconButton)(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#e0e0e0" : "#2d3748",
-  padding: "10px",
-  borderRadius: "12px",
-  border:
-    theme.palette.mode === "dark"
-      ? "1px solid rgba(255, 255, 255, 0.1)"
-      : "1px solid rgba(0, 0, 0, 0.08)",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    backgroundColor:
+const StyledDrawer = styled(Drawer)(({ theme }) => ({
+  "& .MuiDrawer-paper": {
+    width: 280,
+    backgroundColor: theme.palette.mode === "dark" ? "#1a1a1a" : "#ffffff",
+    borderRight:
       theme.palette.mode === "dark"
-        ? "rgba(255, 255, 255, 0.1)"
-        : "rgba(0, 0, 0, 0.04)",
-    transform: "translateY(-1px)",
+        ? "1px solid rgba(255, 255, 255, 0.1)"
+        : "1px solid rgba(0, 0, 0, 0.08)",
   },
 }));
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const muiTheme = useMuiTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
     { icon: HomeIcon, label: "Home", path: "/" },
@@ -123,83 +97,197 @@ export default function Navbar() {
     { icon: PlayArrowIcon, label: "Demo", path: "/demo" },
   ];
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
+
+  const handleMobileMenuToggle = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
-    <StyledAppBar position="static" elevation={0}>
-      <Toolbar
-        sx={{
-          padding: "12px 32px",
-          justifyContent: "space-between",
-          minHeight: "72px",
-        }}
-      >
-        <LogoContainer
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          onClick={() => navigate("/")}
+    <>
+      <StyledAppBar position="static" elevation={0}>
+        <Toolbar
+          sx={{
+            padding: { xs: "8px 16px", md: "12px 32px" },
+            justifyContent: "space-between",
+            minHeight: { xs: "64px", md: "72px" },
+          }}
         >
-          <motion.div whileHover={{ rotate: 5 }} transition={{ duration: 0.3 }}>
+          {/* Logo */}
+          <LogoContainer onClick={() => navigate("/")}>
+            <CodeIcon
+              sx={{
+                fontSize: { xs: 28, md: 32 },
+                color: theme.palette.mode === "dark" ? "#4ecdc4" : "#667eea",
+              }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: "1.1rem", md: "1.25rem" },
+                background:
+                  theme.palette.mode === "dark"
+                    ? "linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)"
+                    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                display: { xs: "none", sm: "block" },
+              }}
+            >
+              CodeBoard
+            </Typography>
+          </LogoContainer>
+
+          {/* Desktop Navigation */}
+          {!isMobile && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {navItems.map((item) => (
+                <NavButton
+                  key={item.path}
+                  startIcon={<item.icon />}
+                  onClick={() => navigate(item.path)}
+                >
+                  {item.label}
+                </NavButton>
+              ))}
+
+              <IconButton
+                onClick={toggleTheme}
+                sx={{
+                  ml: 2,
+                  color: theme.palette.mode === "dark" ? "#e0e0e0" : "#2d3748",
+                }}
+              >
+                {theme.palette.mode === "dark" ? (
+                  <LightModeIcon />
+                ) : (
+                  <DarkModeIcon />
+                )}
+              </IconButton>
+            </Box>
+          )}
+
+          {/* Mobile Menu Button */}
+          {isMobile && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <IconButton
+                onClick={toggleTheme}
+                sx={{
+                  color: theme.palette.mode === "dark" ? "#e0e0e0" : "#2d3748",
+                }}
+              >
+                {theme.palette.mode === "dark" ? (
+                  <LightModeIcon />
+                ) : (
+                  <DarkModeIcon />
+                )}
+              </IconButton>
+
+              <IconButton
+                onClick={handleMobileMenuToggle}
+                sx={{
+                  color: theme.palette.mode === "dark" ? "#e0e0e0" : "#2d3748",
+                }}
+              >
+                {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+              </IconButton>
+            </Box>
+          )}
+        </Toolbar>
+      </StyledAppBar>
+
+      {/* Mobile Drawer */}
+      <StyledDrawer
+        anchor="right"
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      >
+        <Box sx={{ pt: 2 }}>
+          {/* Logo in Drawer */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              px: 3,
+              pb: 2,
+              borderBottom:
+                theme.palette.mode === "dark"
+                  ? "1px solid rgba(255, 255, 255, 0.1)"
+                  : "1px solid rgba(0, 0, 0, 0.08)",
+            }}
+          >
             <CodeIcon
               sx={{
                 fontSize: 32,
                 color: theme.palette.mode === "dark" ? "#4ecdc4" : "#667eea",
-                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
               }}
             />
-          </motion.div>
-          <Typography
-            variant="h5"
-            component="div"
-            sx={{
-              fontWeight: 700,
-              color: theme.palette.mode === "dark" ? "#ffffff" : "#2d3748",
-              letterSpacing: "-0.5px",
-              fontSize: "1.5rem",
-            }}
-          >
-            CodeBoard
-          </Typography>
-        </LogoContainer>
-
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          {navItems.map((item, index) => (
-            <motion.div
-              key={item.path}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                background:
+                  theme.palette.mode === "dark"
+                    ? "linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)"
+                    : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
             >
-              <NavButton
-                startIcon={<item.icon sx={{ fontSize: "18px" }} />}
-                onClick={() => navigate(item.path)}
-              >
-                {item.label}
-              </NavButton>
-            </motion.div>
-          ))}
-
-          <Box sx={{ ml: 2 }}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <ThemeToggle onClick={toggleTheme} size="medium">
-                <motion.div
-                  animate={{ rotate: theme.palette.mode === "dark" ? 0 : 180 }}
-                  transition={{ duration: 0.5, ease: "easeInOut" }}
-                >
-                  {theme.palette.mode === "dark" ? (
-                    <LightModeIcon sx={{ fontSize: "20px" }} />
-                  ) : (
-                    <DarkModeIcon sx={{ fontSize: "20px" }} />
-                  )}
-                </motion.div>
-              </ThemeToggle>
-            </motion.div>
+              CodeBoard
+            </Typography>
           </Box>
+
+          {/* Navigation Items */}
+          <List sx={{ pt: 2 }}>
+            {navItems.map((item) => (
+              <ListItem
+                key={item.path}
+                onClick={() => handleNavigation(item.path)}
+                sx={{
+                  borderRadius: "8px",
+                  mx: 2,
+                  mb: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor:
+                      theme.palette.mode === "dark"
+                        ? "rgba(255, 255, 255, 0.1)"
+                        : "rgba(0, 0, 0, 0.04)",
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color:
+                      theme.palette.mode === "dark" ? "#e0e0e0" : "#2d3748",
+                    minWidth: 40,
+                  }}
+                >
+                  <item.icon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  sx={{
+                    "& .MuiListItemText-primary": {
+                      fontWeight: 500,
+                      color:
+                        theme.palette.mode === "dark" ? "#e0e0e0" : "#2d3748",
+                    },
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
         </Box>
-      </Toolbar>
-    </StyledAppBar>
+      </StyledDrawer>
+    </>
   );
 }
